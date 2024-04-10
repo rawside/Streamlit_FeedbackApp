@@ -79,8 +79,14 @@ correctness = {}  # Dictionary für die Richtigkeit der Angaben
 # Funktion zum Anzeigen eines Attributs mit einem Textfeld und einem Kommentarfeld
 def display_attribute(key, value, prefix=''):
     display_value = str(value) if value not in [None, ""] else "kein Wert vorhanden"
-    st.text_area(label=f"{attribute_names.get(prefix+key, key)}", value=display_value, height=None, key=f"{prefix}{key}_display", disabled=True)
-    
+    st.text_area(
+    label=f"{attribute_names.get('involvedParties.'+key if 'involvedParties' in prefix else prefix+key, key)}",
+    value=display_value,
+    height=None,
+    key=f"{prefix}{key}_display",
+    disabled=True
+    )
+
     # Single-Choice-Objekt für die Richtigkeit der Angaben mit Default auf "Ja"
     correctness_choice = st.radio("Angaben sind korrekt:", ('Ja', 'Nein'), index=0, key=f"{prefix}{key}_correctness")
     correctness[f"{prefix}{key}"] = correctness_choice == "Ja"  # Speichert True, wenn "Ja" ausgewählt wurde
