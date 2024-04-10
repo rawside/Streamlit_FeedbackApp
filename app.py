@@ -22,7 +22,7 @@ attribute_names = {
     "involvedParties.isComplete": "Ist Beteiligter vollständig?",
     "involvedParties.partyName": "Name des Beteiligten",
     "involvedParties.damagedObject": "Beschädigtes Objekt",
-    "involvedParties.partyBehaviour": "Verhalten der Partei",
+    "involvedParties.partyBehavior": "Verhalten der Partei",
     "involvedParties.possibleLawArticle_svg": "mögliche SVG-Artikel",
     "involvedParties.possibleLawArticle_vrv": "Mögliche VRV-Artikel",
     "involvedParties.relevantLawArticle_svg": "Relevante SVG-Artikel",
