@@ -150,13 +150,28 @@ def save_data():
     for key, is_ok in correctness.items():
         # Kommentar und Korrektheitsstruktur vorbereiten
         comment = comments[key]
-        comment_structure = {"comment": comment, "isOk": is_ok}
-        # Kommentar und Korrektheit im verschachtelten Dictionary aktualisieren
-        set_nested_value(updated_data, key, comment_structure)
+        # Den Pfad im verschachtelten Dictionary verfolgen und den letzten Schlüssel extrahieren
+        keys = key.split('.')
+        sub_data = updated_data
+        for sub_key in keys[:-1]:  # Gehe durch die Schlüssel, außer den letzten
+            if '[' in sub_key and ']' in sub_key:
+                base_key, index_str = sub_key[:-1].split('[')
+                index = int(index_str)
+                sub_data = sub_data[base_key][index]
+            else:
+                sub_data = sub_data[sub_key]
+        last_key = keys[-1]
+        # Überprüfe, ob der letzte Schlüssel bereits ein Dictionary ist
+        if not isinstance(sub_data[last_key], dict):
+            sub_data[last_key] = {"value": sub_data[last_key]}  # Ursprünglichen Wert als 'value' speichern
+        # Füge Kommentar und Korrektheit hinzu
+        sub_data[last_key]["comment"] = comment
+        sub_data[last_key]["isOk"] = is_ok
     
     # Das aktualisierte Dokument in die Feedback-Sammlung einfügen
     feedback_collection.insert_one(updated_data)
     st.success('Daten wurden erfolgreich gespeichert!')
+
 
 # Verwenden Sie diese Funktion, wenn der Speichern-Button gedrückt wird
 if st.button('Speichern'):
