@@ -60,6 +60,12 @@ def prev_case():
     if st.session_state.index > 0:
         st.session_state.index -= 1
 
+def check_feedback_exists(case_id):
+    return feedback_collection.count_documents({"caseId": case_id}) > 0
+
+# Lade die aktuellen Daten basierend auf `st.session_state.index`
+data = load_data(st.session_state.index)
+
 # Banner mit Navigationsbuttons
 st.container()
 col1, col2, col3 = st.columns([1, 2, 1])
@@ -67,11 +73,15 @@ with col1:
     st.button("Zurück", on_click=prev_case)
 with col2:
     st.write(f"Fall: {st.session_state.index + 1} von {total_docs}")
+    # Extrahiere die caseId für den aktuellen Fall
+    case_id = data.get('caseId')
+    # Überprüfe, ob Feedback bereits existiert
+    if check_feedback_exists(case_id):
+        st.markdown('<span style="color: red; font-weight: bold;">Für diesen Fall wurde bereits ein Feedback gespeichert.</span>', unsafe_allow_html=True)
 with col3:
     st.button("Weiter", on_click=next_case)
 
-# Lade die aktuellen Daten basierend auf `st.session_state.index`
-data = load_data(st.session_state.index)
+
 # Kommentarfelder-Dictionary und Korrektheitsüberprüfung initialisieren
 comments = {}
 correctness = {}  # Dictionary für die Richtigkeit der Angaben
