@@ -84,6 +84,7 @@ for row in range(num_rows):
                 label += " 🔴"  # Red circle emoji to indicate feedback exists
             if st.button(label, key=f"case_{case_id}"):
                 navigate_case(case_id)
+                st.rerun()
                 
 
 # Kommentarfelder-Dictionary und Korrektheitsüberprüfung initialisieren
