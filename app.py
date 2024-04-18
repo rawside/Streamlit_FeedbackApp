@@ -39,48 +39,55 @@ attribute_names = {
     "liabilityDecision.additionalComments": "zusätzliche Kommentare"
 }
 
+# Function to load data by caseId
+def load_data(case_id):
+    return collection.find_one({"caseId": case_id})
 
-# Funktion zum Laden der Daten
-def load_data(index):
-    return collection.find_one({}, skip=index)  # Überspringt `index` Dokumente
-
-# Berechne die Gesamtanzahl der Dokumente in der Sammlung
-total_docs = collection.count_documents({})
-
-# Session State für Indexverwaltung
-if 'index' not in st.session_state:
-    st.session_state.index = 0
-
-# Navigationsfunktionen
-def next_case():
-    if st.session_state.index < total_docs - 1:
-        st.session_state.index += 1
-
-def prev_case():
-    if st.session_state.index > 0:
-        st.session_state.index -= 1
-
+# Check if feedback exists for the given caseId
 def check_feedback_exists(case_id):
     return feedback_collection.count_documents({"caseId": case_id}) > 0
 
-# Lade die aktuellen Daten basierend auf `st.session_state.index`
-data = load_data(st.session_state.index)
+# Retrieve sorted list of caseIds
+case_ids = sorted([doc['caseId'] for doc in collection.find({}, {'caseId': 1})])
 
-# Banner mit Navigationsbuttons
-st.container()
-col1, col2, col3 = st.columns([1, 2, 1])
-with col1:
-    st.button("Zurück", on_click=prev_case)
-with col2:
-    st.write(f"Fall: {st.session_state.index + 1} von {total_docs}")
-    # Extrahiere die caseId für den aktuellen Fall
-    case_id = data.get('caseId')
-    # Überprüfe, ob Feedback bereits existiert
-    if check_feedback_exists(case_id):
-        st.markdown('<span style="color: red; font-weight: bold;">Für diesen Fall wurde bereits ein Feedback gespeichert.</span>', unsafe_allow_html=True)
-with col3:
-    st.button("Weiter", on_click=next_case)
+# Initialize or update session state
+if 'current_case_id' not in st.session_state:
+    st.session_state.current_case_id = case_ids[0] if case_ids else None
 
+# Load data for the current caseId
+data = load_data(st.session_state.current_case_id)
+
+# Function to navigate to the previous or next case
+def navigate_case(case_id):
+    st.session_state.current_case_id = case_id
+    st.rerun()
+
+def reset_attribute_state():
+    for key in list(st.session_state.keys()):
+        if key.endswith('_correctness') or key.endswith('_comment'):
+            del st.session_state[key]
+
+# Header: Current Case Information
+st.header(f"Aktueller Fall ID: {st.session_state.current_case_id}")
+if check_feedback_exists(st.session_state.current_case_id):
+    st.markdown("<span style='color:red'>Für diesen Fall wurde bereits eine Bewertung gespeichert</span>", unsafe_allow_html=True)
+
+# Row for Case Number Buttons
+cases_per_row = 20  # Number of cases to display per row
+num_rows = len(case_ids) // cases_per_row + (1 if len(case_ids) % cases_per_row else 0)
+
+for row in range(num_rows):
+    start = row * cases_per_row
+    end = start + cases_per_row
+    row_cases = case_ids[start:end]
+    cols = st.columns(cases_per_row)
+    for col, case_id in zip(cols, row_cases):
+        with col:
+            label = f"{case_id}"
+            if check_feedback_exists(case_id):
+                label += " 🔴"  # Red circle emoji to indicate feedback exists
+            if st.button(label, key=f"case_{case_id}"):
+                navigate_case(case_id)
 
 # Kommentarfelder-Dictionary und Korrektheitsüberprüfung initialisieren
 comments = {}
@@ -120,6 +127,7 @@ def display_data_section(data_section, prefix):
             display_attribute(key, value, prefix=prefix)
 # Anzeige der Daten
 if data:
+    reset_attribute_state()
     st.header("Allgemeine Daten")
     display_data_section(data.get('generalData'), prefix='generalData.')
     
