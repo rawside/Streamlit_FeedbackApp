@@ -62,11 +62,6 @@ def navigate_case(case_id):
     st.session_state.current_case_id = case_id
     st.rerun()
 
-def reset_attribute_state():
-    for key in list(st.session_state.keys()):
-        if key.endswith('_correctness') or key.endswith('_comment'):
-            del st.session_state[key]
-
 # Header: Current Case Information
 st.header(f"Aktueller Fall ID: {st.session_state.current_case_id}")
 if check_feedback_exists(st.session_state.current_case_id):
@@ -127,7 +122,6 @@ def display_data_section(data_section, prefix):
             display_attribute(key, value, prefix=prefix)
 # Anzeige der Daten
 if data:
-    reset_attribute_state()
     st.header("Allgemeine Daten")
     display_data_section(data.get('generalData'), prefix='generalData.')
     
