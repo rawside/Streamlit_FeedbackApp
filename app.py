@@ -43,6 +43,7 @@ attribute_names = {
 def load_data(case_id):
     return collection.find_one({"caseId": case_id})
 
+
 # Check if feedback exists for the given caseId
 def check_feedback_exists(case_id):
     return feedback_collection.count_documents({"caseId": case_id}) > 0
@@ -60,7 +61,7 @@ data = load_data(st.session_state.current_case_id)
 # Function to navigate to the previous or next case
 def navigate_case(case_id):
     st.session_state.current_case_id = case_id
-    st.rerun()
+   
 
 # Header: Current Case Information
 st.header(f"Aktueller Fall ID: {st.session_state.current_case_id}")
@@ -83,6 +84,7 @@ for row in range(num_rows):
                 label += " 🔴"  # Red circle emoji to indicate feedback exists
             if st.button(label, key=f"case_{case_id}"):
                 navigate_case(case_id)
+                
 
 # Kommentarfelder-Dictionary und Korrektheitsüberprüfung initialisieren
 comments = {}
