@@ -191,3 +191,4 @@ def save_data():
 # Verwenden Sie diese Funktion, wenn der Speichern-Button gedrückt wird
 if st.button('Speichern'):
     save_data()
+    st.rerun()
